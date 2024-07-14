@@ -1,0 +1,22 @@
+#wd-courses-navigation {
+  list-style-type: none; /* Remove default list item markers */
+}
+
+#wd-courses-navigation .list-group-item.active {
+  color: black !important;
+  background-color: white !important;
+  border-left: 3px solid black !important;
+}
+
+#wd-courses-navigation .list-group-item {
+  cursor: pointer;
+}
+
+#wd-courses-navigation .list-group-item.text-danger {
+  color: red;
+}
+
+#wd-courses-navigation a {
+  text-decoration: none;
+  color: inherit;
+}
