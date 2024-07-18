@@ -1,12 +1,34 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom'; // Importing useParams from react-router-dom
+import assignmentsData from '../../Database/assignments.json'; // Import assignments data
 
 export default function AssignmentEditor() {
+  const { aid } = useParams(); // Get assignmentId from URL params
+  const [assignmentDetails, setAssignmentDetails] = useState({
+    title: ''
+  });
+
+  useEffect(() => {
+    // Find assignment from assignmentsData based on aid
+    const assignment = assignmentsData.find(assignment => assignment._id === aid);
+
+    if (assignment) {
+      setAssignmentDetails({
+        title: assignment.title
+      });
+
+      // Update the URL dynamically with the assignment title
+      // You might handle this part differently based on your routing setup
+      // Example: history.replace(`/Kanbas/Courses/${assignment.course}/Assignments/${aid}/${encodeURIComponent(assignment.title)}`);
+    }
+  }, [aid]);
+
   return (
     <div id="wd-assignments-editor" className="p-3">
       <div className="container">
         <div className="mb-3">
           <label htmlFor="wd-name">Assignment Name</label>
-          <input id="wd-name" className="form-control mb-3" value="A1 - ENV + HTML" />
+          <input id="wd-name" className="form-control mb-3" value={assignmentDetails.title} readOnly />
 
           <div className="assignment-details-box p-3 border">
             <p><span style={{ color: 'black' }}>The assignment is </span><span style={{ color: 'red' }}>available online.</span> Submit a link to the landing page of your Web application running on Netlify.</p>
