@@ -3,6 +3,7 @@ import { BsGearFill } from 'react-icons/bs';
 import { IoSearch } from 'react-icons/io5'; // Correct import for search icon
 import { FaFileImport, FaFileExport } from "react-icons/fa6";
 import { CiFilter } from "react-icons/ci";
+import * as db from "../../Database";
 
 const Grades = () => {
   return (

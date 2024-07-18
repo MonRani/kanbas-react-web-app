@@ -1,27 +1,32 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom'; // Importing useParams from react-router-dom
-import assignmentsData from '../../Database/assignments.json'; // Import assignments data
+import { useParams } from 'react-router-dom';
+import assignmentsData from '../../Database/assignments.json';
 
 export default function AssignmentEditor() {
-  const { aid } = useParams(); // Get assignmentId from URL params
+  const { aid } = useParams();
   const [assignmentDetails, setAssignmentDetails] = useState({
-    title: ''
+    title: '',
+    course: ''
   });
 
   useEffect(() => {
-    // Find assignment from assignmentsData based on aid
     const assignment = assignmentsData.find(assignment => assignment._id === aid);
 
     if (assignment) {
       setAssignmentDetails({
-        title: assignment.title
+        title: assignment.title,
+        course: assignment.course
       });
-
-      // Update the URL dynamically with the assignment title
-      // You might handle this part differently based on your routing setup
-      // Example: history.replace(`/Kanbas/Courses/${assignment.course}/Assignments/${aid}/${encodeURIComponent(assignment.title)}`);
     }
   }, [aid]);
+
+  const handleCancel = () => {
+    window.location.href = `#/Kanbas/Courses/${assignmentDetails.course}/Assignments`;
+  };
+
+  const handleSave = () => {
+    window.location.href = `#/Kanbas/Courses/${assignmentDetails.course}/Assignments`;
+  };
 
   return (
     <div id="wd-assignments-editor" className="p-3">
@@ -124,8 +129,8 @@ export default function AssignmentEditor() {
             </div>
             <div className="row">
               <div className="col-md-12 text-end">
-                <button className="btn btn-secondary">Cancel</button>
-                <button className="btn btn-danger ms-2">Save</button>
+                <button className="btn btn-secondary" onClick={handleCancel}>Cancel</button>
+                <button className="btn btn-danger ms-2" onClick={handleSave}>Save</button>
               </div>
             </div>
           </div>
