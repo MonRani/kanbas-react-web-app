@@ -1,118 +1,110 @@
-import React from 'react';
-import { BsGearFill } from 'react-icons/bs';
-import { IoSearch } from 'react-icons/io5'; // Correct import for search icon
-import { FaFileImport, FaFileExport } from "react-icons/fa6";
-import { CiFilter } from "react-icons/ci";
-import * as db from "../../Database";
+import React, { useState, useEffect } from 'react';
+import * as db from '../../Database';
+import { useParams } from 'react-router-dom';
+import GradesTopBar from './GradesTopBar';
+import './index.css';
 
-const Grades = () => {
+interface Assignment {
+  _id: string;
+  title: string;
+  course: string;
+  points: number;
+}
+
+interface Enrollment {
+  _id: string;
+  user: string;
+  course: string;
+}
+
+interface User {
+  _id: string;
+  firstName: string;
+  lastName: string;
+  role: string;
+}
+
+interface Grade {
+  _id: string;
+  student: string;
+  assignment: string;
+  grade: string;
+}
+
+function Grades() {
+  const { cid } = useParams<{ cid: string }>();  // Update to use 'cid'
+  console.log(cid);
+
+  const assignments = (db.assignments as Assignment[]).filter((assignment) => assignment.course === cid);
+  const enrollments = (db.enrollments as Enrollment[]).filter((enrollment) => enrollment.course === cid);
+
+  const [editableGrades, setEditableGrades] = useState<{ [key: string]: string }>({});
+
+  useEffect(() => {
+    console.log('Assignments:', assignments);
+    console.log('Enrollments:', enrollments);
+  }, [assignments, enrollments]);
+
+  const handleGradeChange = (enrollmentId: string, assignmentId: string, value: string) => {
+    setEditableGrades((prevGrades) => ({
+      ...prevGrades,
+      [`${enrollmentId}-${assignmentId}`]: value,
+    }));
+  };
+
   return (
-    <div className="p-3">
-      {/* Top Header */}
-      <div className="d-flex justify-content-between align-items-center mb-3">
-        {/* Right justified buttons */}
-        <div className="d-flex align-items-center ms-auto">
-          <button className="btn btn-light me-2">
-            <FaFileImport /> Import
-          </button>
-          <button className="btn btn-light me-2">
-            <FaFileExport /> Export
-          </button>
-          <button className="btn btn-light">
-            <BsGearFill className="me-1" />
-          </button>
-        </div>
-      </div>
-
-      {/* Search dropdowns */}
-      <div className="d-flex mb-3">
-        {/* Search Students dropdown */}
-        <div className="dropdown me-2">
-          <label htmlFor="searchStudents" className="fw-bold">Student Names</label>
-          <div className="input-group">
-            <span className="input-group-text"><IoSearch /></span>
-            <input type="text" className="form-control" id="searchStudents" placeholder="Search Students" />
-          </div>
-        </div>
-
-        {/* Search Assignments dropdown */}
-        <div className="dropdown">
-          <label htmlFor="searchAssignments" className="fw-bold">Assignment Names</label>
-          <div className="input-group">
-            <span className="input-group-text"><IoSearch /></span>
-            <input type="text" className="form-control" id="searchAssignments" placeholder="Search Assignments" />
-          </div>
-        </div>
-      </div>
-
-      {/* Apply Filters button */}
-      <div className="mb-3">
-        <button className="btn btn-outline-secondary btn-static">
-          <CiFilter className="text-black" /> Apply Filters
-        </button>
-      </div>
-
-      {/* Table Section */}
+    <div>
+      <GradesTopBar />
       <div className="table-responsive">
-        <table className="table table-striped table-bordered table-hover text-center">
-          <thead>
+        <table className="table table-striped table-bordered border-secondary text-center">
+          <thead className="table-secondary">
             <tr>
-              <th style={{ fontWeight: 'bold' }}>Student Name</th>
-              <th>A1 SETUP<br />Out of 100</th>
-              <th>A2 HTML<br />Out of 100</th>
-              <th>A3 CSS<br />Out of 100</th>
-              <th>A4 BOOTSTRAP<br />Out of 100</th>
+              <th>Student Name</th>
+              {assignments.map((assignment) => (
+                <th key={assignment._id}>
+                  {assignment.title}
+                  <br />
+                  Out of {assignment.points}
+                </th>
+              ))}
             </tr>
           </thead>
           <tbody>
-            {/* Row 1 */}
-            <tr>
-              <td style={{ color: 'red', verticalAlign: 'middle' }}>Jane Adams</td>
-              <td style={{ verticalAlign: 'middle' }}>100%</td>
-              <td style={{ verticalAlign: 'middle' }}>96.67%</td>
-              <td style={{ verticalAlign: 'middle' }}>92.18%</td>
-              <td style={{ verticalAlign: 'middle' }}>66.22%</td>
-            </tr>
-            {/* Row 2 */}
-            <tr>
-              <td style={{ color: 'red', verticalAlign: 'middle' }}>Christina Allen</td>
-              <td style={{ verticalAlign: 'middle' }}>100%</td>
-              <td style={{ verticalAlign: 'middle' }}>100%</td>
-              <td style={{ verticalAlign: 'middle' }}>100%</td>
-              <td style={{ verticalAlign: 'middle' }}>100%</td>
-            </tr>
-            {/* Row 3 */}
-            <tr>
-              <td style={{ color: 'red', verticalAlign: 'middle' }}>Samreen Ansari</td>
-              <td style={{ verticalAlign: 'middle' }}>100%</td>
-              <td style={{ verticalAlign: 'middle' }}>100%</td>
-              <td style={{ verticalAlign: 'middle' }}>100%</td>
-              <td style={{ verticalAlign: 'middle' }}>100%</td>
-            </tr>
-            {/* Row 4 */}
-            <tr>
-              <td style={{ color: 'red', verticalAlign: 'middle' }}>Han Bao</td>
-              <td style={{ verticalAlign: 'middle' }}>100%</td>
-              <td style={{ verticalAlign: 'middle' }}>100%</td>
-              <td style={{ verticalAlign: 'middle' }}>88.03%</td>
-              <td style={{ verticalAlign: 'middle' }}>98.99%</td>
-            </tr>
-            {/* Row 5 */}
-            <tr>
-              <td style={{ color: 'red', verticalAlign: 'middle' }}>Mahi Sai Srinivas Bobbili</td>
-              <td style={{ verticalAlign: 'middle' }}>100%</td>
-              <td style={{ verticalAlign: 'middle' }}>96.67%</td>
-              <td style={{ verticalAlign: 'middle' }}>98.37%</td>
-              <td style={{ verticalAlign: 'middle' }}>100%</td>
-            </tr>
-            {/* Row 6 */}
-            <tr>
-              <td style={{ color: 'red', verticalAlign: 'middle' }}>Siran Cao</td>
-              <td style={{ verticalAlign: 'middle' }}>100%</td>
-              <td style={{ verticalAlign: 'middle' }}>100%</td>
-              <td style={{ verticalAlign: 'middle' }}>100%</td>
-              <td style={{ verticalAlign: 'middle' }}>100%</td>
-            </tr>
+            {enrollments.map((enrollment) => {
+              const user = db.users.find((user: User) => user._id === enrollment.user);
+              return (
+                <tr key={enrollment.user}>
+                  <td>
+                    {user?.firstName} {user?.lastName}
+                  </td>
+                  {assignments.map((assignment) => {
+                    const grade = db.grades.find(
+                      (grade: Grade) => grade.student === enrollment.user && grade.assignment === assignment._id
+                    );
+                    const isEditable = true;
+                    const gradeKey = `${enrollment.user}-${assignment._id}`;
+                    const value = editableGrades[gradeKey] !== undefined ? editableGrades[gradeKey] : grade?.grade || '';
+
+                    return (
+                      <td key={assignment._id}>
+                        {isEditable ? (
+                          <div className="form-group">
+                            <input
+                              type="text"
+                              className="form-control"
+                              value={value}
+                              onChange={(e) => handleGradeChange(enrollment.user, assignment._id, e.target.value)}
+                            />
+                          </div>
+                        ) : (
+                          grade?.grade != null ? `${grade.grade}%` : ''
+                        )}
+                      </td>
+                    );
+                  })}
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>

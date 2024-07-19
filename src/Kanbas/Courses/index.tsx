@@ -5,7 +5,7 @@ import Modules from './Modules';
 import Home from './Home';
 import Assignments from './Assignments';
 import AssignmentEditor from './Assignments/Editor';
-import Grades from './Grades'; // Import Grades component
+import Grades from './Grades';
 import { FaAlignJustify } from 'react-icons/fa';
 import { courses } from "../Database";
 
