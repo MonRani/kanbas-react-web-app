@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom'; // Add useNavigate
+import { useDispatch } from 'react-redux'; // Import useDispatch
+import { updateAssignment } from './reducer'; // Import updateAssignment
 import assignmentsData from '../../Database/assignments.json';
 
-// Define the type for assignment details
 interface AssignmentDetails {
   _id?: string;
   title: string;
@@ -26,6 +27,9 @@ export default function AssignmentEditor() {
     course: ''
   });
 
+  const dispatch = useDispatch(); // Initialize dispatch
+  const navigate = useNavigate(); // Initialize navigate
+
   useEffect(() => {
     const assignment = (assignmentsData as AssignmentDetails[]).find(assignment => assignment._id === aid);
 
@@ -43,11 +47,14 @@ export default function AssignmentEditor() {
   }, [aid]);
 
   const handleCancel = () => {
-    window.location.href = `#/Kanbas/Courses/${assignmentDetails.course}/Assignments`;
+    navigate(`/Kanbas/Courses/${assignmentDetails.course}/Assignments`); // Use navigate instead of window.location.href
   };
 
   const handleSave = () => {
-    window.location.href = `#/Kanbas/Courses/${assignmentDetails.course}/Assignments`;
+    if (aid) {
+      dispatch(updateAssignment({ ...assignmentDetails, _id: aid }));
+    }
+    navigate(`/Kanbas/Courses/${assignmentDetails.course}/Assignments`); // Use navigate instead of window.location.href
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -77,7 +84,19 @@ export default function AssignmentEditor() {
             value={assignmentDetails.description}
             onChange={handleInputChange}
           />
+          <div className="assignment-details-box p-3 border">
+            <p><span style={{ color: 'black' }}>The assignment is </span><span style={{ color: 'red' }}>available online.</span> Submit a link to the landing page of your Web application running on Netlify.</p>
 
+            <p>The landing page should include the following:</p>
+            <ul>
+              <li>Your full name and section</li>
+              <li>Links to each of the lab assignments</li>
+              <li>Link to the Kansas application</li>
+              <li>Links to all relevant source code repositories</li>
+            </ul>
+
+            <p>The Kansas application should include a link to navigate back to the landing page.</p>
+          </div>
         </div>
         <div className="row justify-content-center mb-3">
           <div className="col-md-8">
