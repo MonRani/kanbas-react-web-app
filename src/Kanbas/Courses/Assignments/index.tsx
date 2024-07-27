@@ -1,14 +1,42 @@
-import React from 'react';
-import { useParams } from 'react-router';
-import { BsGripVertical, BsPencilSquare, BsSearch, BsPlusLg } from 'react-icons/bs';
+import React, { useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { useParams, useNavigate } from 'react-router';
+import { BsGripVertical, BsPencilSquare, BsSearch, BsPlusLg, BsTrash } from 'react-icons/bs';
 import { IoEllipsisVertical } from 'react-icons/io5';
-import AssignmentControlButtons from './AssignmentControlButtons';
 import GreenCheckmark from './GreenCheckmark';
-import * as db from "../../Database";
+import { deleteAssignment } from './reducer'; // Import the deleteAssignment action
 
 export default function Assignments() {
-  const { cid } = useParams();
-  const assignments = db.assignments.filter((assignment) => assignment.course === cid);
+  const { cid } = useParams<{ cid?: string }>();
+  const [confirmDelete, setConfirmDelete] = useState<{ id: string | null; visible: boolean }>({ id: null, visible: false });
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const assignments = useSelector((state: any) => state.assignmentsReducer.assignments);
+
+  const handleAddAssignment = () => {
+    if (cid) {
+      navigate(`/Kanbas/Courses/${cid}/Assignments/new`);
+    }
+  };
+
+  const handleEditAssignment = (assignmentId: string) => {
+    navigate(`/Kanbas/Courses/${cid}/Assignments/${assignmentId}`);
+  };
+
+  const handleDelete = (assignmentId: string) => {
+    setConfirmDelete({ id: assignmentId, visible: true });
+  };
+
+  const confirmDeletion = () => {
+    if (confirmDelete.id) {
+      dispatch(deleteAssignment(confirmDelete.id));
+    }
+    setConfirmDelete({ id: null, visible: false });
+  };
+
+  const cancelDeletion = () => {
+    setConfirmDelete({ id: null, visible: false });
+  };
 
   return (
     <div id="wd-assignments" className="p-3">
@@ -18,7 +46,7 @@ export default function Assignments() {
             id="wd-search-assignment"
             className="form-control ps-5 rounded-pill"
             placeholder="Search..."
-            style={{ paddingLeft: "2.5rem" }}
+            style={{ paddingLeft: '2.5rem' }}
           />
           <BsSearch className="position-absolute top-50 start-0 translate-middle-y ms-2 fs-5" />
         </div>
@@ -26,7 +54,7 @@ export default function Assignments() {
           <button id="wd-add-assignment-group" className="btn btn-secondary me-2">
             + Group
           </button>
-          <button id="wd-add-assignment" className="btn btn-danger">
+          <button id="wd-add-assignment" className="btn btn-danger" onClick={handleAddAssignment}>
             + Assignment
           </button>
         </div>
@@ -37,7 +65,7 @@ export default function Assignments() {
           <div className="d-flex align-items-center">
             <BsGripVertical className="me-2 fs-5" />
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-caret-down-fill text-black me-2" viewBox="0 0 16 16">
-              <path d="M8 10.586 1.707 4.293A1 1 0 0 1 2.12 2.88L8 8.707l5.88-5.88a1 1 0 1 1 1.415 1.415L8 10.586z"/>
+              <path d="M8 10.586L1.707 4.293A1 1 0 012.12 2.88L8 8.707l5.88-5.88a1 1 0 111.415 1.415L8 10.586z" />
             </svg>
             <span className="fw-bold">ASSIGNMENTS</span>
           </div>
@@ -50,27 +78,59 @@ export default function Assignments() {
           </div>
         </div>
         <ul className="wd-lessons list-group rounded-0">
-          {assignments.map((assignment) => (
-            <li key={assignment._id} className="wd-lesson list-group-item p-3 ps-1 d-flex justify-content-between align-items-center">
-              <div className="d-flex align-items-center">
-                <BsGripVertical className="me-2 fs-5" />
-                <BsPencilSquare className="text-success me-2 fs-7" />
-                <div>
-                  <a className="wd-assignment-link text-black" href={`#/Kanbas/Courses/${cid}/Assignments/${assignment._id}`} style={{ textDecoration: 'none' }}>
-                    <span className="fw-bold">{assignment.title}</span>
-                  </a>
-                  <br />
-                  <span className="fw-bold" style={{ fontSize: '20px' }}>Assignment ID:</span> {assignment._id}
+          {assignments
+            .filter((assignment: any) => assignment.course === cid)
+            .map((assignment: any) => (
+              <li key={assignment._id} className="wd-lesson list-group-item p-3 ps-1 d-flex justify-content-between align-items-center">
+                <div className="d-flex align-items-center">
+                  <BsGripVertical className="me-2 fs-5" />
+                  <BsPencilSquare className="text-success me-2 fs-7" />
+                  <div>
+                    <a
+                      className="wd-assignment-link text-black"
+                      onClick={() => handleEditAssignment(assignment._id)}
+                      style={{ cursor: 'pointer', textDecoration: 'none' }}
+                    >
+                      <span className="fw-bold">{assignment.title}</span>
+                    </a>
+                    <br />
+                    <span className="fw-bold" style={{ fontSize: '20px' }}>Assignment ID:</span> {assignment._id}
+                  </div>
                 </div>
-              </div>
-              <div className="ms-auto d-flex align-items-center">
-                <GreenCheckmark />
-                <IoEllipsisVertical className="fs-5 ms-2" />
-              </div>
-            </li>
-          ))}
+                <div className="ms-auto d-flex align-items-center">
+                  <GreenCheckmark />
+                  <BsTrash
+                    className="text-danger ms-2 fs-5"
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => handleDelete(assignment._id)}
+                  />
+                  <IoEllipsisVertical className="fs-5 ms-2" />
+                </div>
+              </li>
+            ))}
         </ul>
       </div>
+
+      {/* Confirmation Dialog */}
+      {confirmDelete.visible && (
+        <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+          <div className="modal-dialog">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Confirm Delete</h5>
+                <button type="button" className="btn-close" onClick={cancelDeletion}></button>
+              </div>
+              <div className="modal-body">
+                <p>Are you sure you want to delete this assignment?</p>
+              </div>
+              <div className="modal-footer">
+                <button type="button" className="btn btn-secondary" onClick={cancelDeletion}>No</button>
+                <button type="button" className="btn btn-danger" onClick={confirmDeletion}>Yes</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

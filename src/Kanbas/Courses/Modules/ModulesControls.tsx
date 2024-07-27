@@ -2,8 +2,11 @@ import React from 'react';
 import { FaCheckCircle, FaCircle, FaPlus } from 'react-icons/fa';
 import { BsSlashCircle } from 'react-icons/bs'; // Import BsSlashCircle for the new icon
 import GreenCheckmark from './GreenCheckmark'; // Import GreenCheckmark component
+import ModuleEditor from "./ModuleEditor";
 
-export default function ModulesControls() {
+export default function ModulesControls(
+{ moduleName, setModuleName, addModule }:
+{ moduleName: string; setModuleName: (title: string) => void; addModule: () => void; }) {
   const iconStyle = { color: '#6c757d' }; // Define grey color for icons
 
   return (
@@ -37,7 +40,13 @@ export default function ModulesControls() {
           </li>
         </ul>
       </div>
-      <button className="btn btn-danger">+ Module</button>
+      <button className="btn btn-lg btn-danger me-1 float-end"
+              data-bs-toggle="modal" data-bs-target="#wd-add-module-dialog" >
+              <FaPlus className="position-relative me-2" style={{ bottom: "1px" }} />
+              Module
+      </button>
+      <ModuleEditor dialogTitle="Add Module" moduleName={moduleName}
+                          setModuleName={setModuleName} addModule={addModule} />
     </div>
   );
 }

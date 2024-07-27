@@ -2,19 +2,41 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import assignmentsData from '../../Database/assignments.json';
 
+// Define the type for assignment details
+interface AssignmentDetails {
+  _id?: string;
+  title: string;
+  description: string;
+  points: number;
+  dueDate: string;
+  availableFrom: string;
+  availableUntil: string;
+  course: string;
+}
+
 export default function AssignmentEditor() {
-  const { aid } = useParams();
-  const [assignmentDetails, setAssignmentDetails] = useState({
+  const { aid } = useParams<{ aid: string }>();
+  const [assignmentDetails, setAssignmentDetails] = useState<AssignmentDetails>({
     title: '',
+    description: 'The assignment is available online. Submit a link to the landing page of your Web application running on Netlify.\n\nThe landing page should include the following:\n\n- Your full name and section\n- Links to each of the lab assignments\n- Link to the Kansas application\n- Links to all relevant source code repositories\n\nThe Kansas application should include a link to navigate back to the landing page.',
+    points: 100,
+    dueDate: '',
+    availableFrom: '',
+    availableUntil: '',
     course: ''
   });
 
   useEffect(() => {
-    const assignment = assignmentsData.find(assignment => assignment._id === aid);
+    const assignment = (assignmentsData as AssignmentDetails[]).find(assignment => assignment._id === aid);
 
     if (assignment) {
       setAssignmentDetails({
         title: assignment.title,
+        description: assignment.description,
+        points: assignment.points,
+        dueDate: assignment.dueDate,
+        availableFrom: assignment.availableFrom,
+        availableUntil: assignment.availableUntil,
         course: assignment.course
       });
     }
@@ -28,26 +50,34 @@ export default function AssignmentEditor() {
     window.location.href = `#/Kanbas/Courses/${assignmentDetails.course}/Assignments`;
   };
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { id, value } = e.target;
+    setAssignmentDetails(prevDetails => ({
+      ...prevDetails,
+      [id]: value
+    }));
+  };
+
   return (
     <div id="wd-assignments-editor" className="p-3">
       <div className="container">
         <div className="mb-3">
           <label htmlFor="wd-name">Assignment Name</label>
-          <input id="wd-name" className="form-control mb-3" value={assignmentDetails.title} readOnly />
+          <input
+            id="title"
+            className="form-control mb-3"
+            value={assignmentDetails.title}
+            onChange={handleInputChange}
+          />
+          <label htmlFor="description">Description</label>
+          <textarea
+            id="description"
+            className="form-control mb-3"
+            rows={6}
+            value={assignmentDetails.description}
+            onChange={handleInputChange}
+          />
 
-          <div className="assignment-details-box p-3 border">
-            <p><span style={{ color: 'black' }}>The assignment is </span><span style={{ color: 'red' }}>available online.</span> Submit a link to the landing page of your Web application running on Netlify.</p>
-
-            <p>The landing page should include the following:</p>
-            <ul>
-              <li>Your full name and section</li>
-              <li>Links to each of the lab assignments</li>
-              <li>Link to the Kansas application</li>
-              <li>Links to all relevant source code repositories</li>
-            </ul>
-
-            <p>The Kansas application should include a link to navigate back to the landing page.</p>
-          </div>
         </div>
         <div className="row justify-content-center mb-3">
           <div className="col-md-8">
@@ -56,7 +86,12 @@ export default function AssignmentEditor() {
                 <label htmlFor="wd-points">Points</label>
               </div>
               <div className="col-md-8">
-                <input id="wd-ppoints" className="form-control" value={100} />
+                <input
+                  id="points"
+                  className="form-control"
+                  value={assignmentDetails.points}
+                  onChange={handleInputChange}
+                />
               </div>
             </div>
             <div className="row mb-3">
@@ -64,7 +99,7 @@ export default function AssignmentEditor() {
                 <label htmlFor="wd-group">Assignment Group</label>
               </div>
               <div className="col-md-8">
-                <select id="wd-group" className="form-control">
+                <select id="group" className="form-control" value="assignments" disabled>
                   <option value="assignments">ASSIGNMENTS</option>
                 </select>
               </div>
@@ -74,7 +109,7 @@ export default function AssignmentEditor() {
                 <label htmlFor="wd-grade-display">Display Grade as</label>
               </div>
               <div className="col-md-8">
-                <select id="wd-grade-display" className="form-control">
+                <select id="grade-display" className="form-control" value="percentage" disabled>
                   <option value="percentage">Percentage</option>
                 </select>
               </div>
@@ -85,7 +120,7 @@ export default function AssignmentEditor() {
               </div>
               <div className="col-md-8">
                 <div className="border p-3">
-                  <select id="wd-submission-type" className="form-control mb-2">
+                  <select id="submission-type" className="form-control mb-2" value="online" disabled>
                     <option value="online">Online</option>
                   </select>
                   <b>Online Entry Options</b>
@@ -111,17 +146,35 @@ export default function AssignmentEditor() {
               <div className="col-md-8">
                 <div className="border p-3">
                   <b>Assign To</b>
-                  <input id="assign-to" className="form-control mb-2" value="Everyone" />
+                  <input id="assign-to" className="form-control mb-2" value="Everyone" disabled />
                   <b>Due</b>
-                  <input type="datetime-local" id="due-date" className="form-control mb-2" defaultValue="2024-05-13T23:59" />
+                  <input
+                    type="datetime-local"
+                    id="due-date"
+                    className="form-control mb-2"
+                    value={assignmentDetails.dueDate}
+                    onChange={handleInputChange}
+                  />
                   <div className="row">
                     <div className="col-md-6">
                       <label htmlFor="available-from">Available From</label>
-                      <input type="datetime-local" id="available-from" className="form-control mb-2" />
+                      <input
+                        type="datetime-local"
+                        id="availableFrom"
+                        className="form-control mb-2"
+                        value={assignmentDetails.availableFrom}
+                        onChange={handleInputChange}
+                      />
                     </div>
                     <div className="col-md-6">
-                      <label htmlFor="until">Until</label>
-                      <input type="datetime-local" id="until" className="form-control mb-2" />
+                      <label htmlFor="availableUntil">Until</label>
+                      <input
+                        type="datetime-local"
+                        id="availableUntil"
+                        className="form-control mb-2"
+                        value={assignmentDetails.availableUntil}
+                        onChange={handleInputChange}
+                      />
                     </div>
                   </div>
                 </div>

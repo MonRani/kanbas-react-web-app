@@ -5,11 +5,11 @@ import Modules from './Modules';
 import Home from './Home';
 import Assignments from './Assignments';
 import AssignmentEditor from './Assignments/Editor';
+import AssignmentNew from './Assignments/AssignmentEditor';
 import Grades from './Grades';
 import { FaAlignJustify } from 'react-icons/fa';
-import { courses } from "../Database";
 
-export default function Courses() {
+export default function Courses({ courses }: { courses: any[]; }) {
   const { cid } = useParams();
   const course = courses.find((course) => course._id === cid);
   const { pathname } = useLocation();
@@ -31,6 +31,7 @@ export default function Courses() {
             <Route path="Modules" element={<Modules />} />
             <Route path="Assignments" element={<Assignments />} />
             <Route path="Assignments/:aid" element={<AssignmentEditor />} />
+            <Route path="Assignments/new" element={<AssignmentNew />} />
             <Route path="Grades" element={<Grades />} />
           </Routes>
         </div>
