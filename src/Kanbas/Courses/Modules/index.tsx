@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useParams } from "react-router";
 import ModulesControls from './ModulesControls';
 import { BsGripVertical } from 'react-icons/bs';
 import ModuleControlButtons from './ModuleControlButtons';
 import LessonControlButtons from './LessonControlButtons';
-import { addModule, editModule, updateModule, deleteModule } from './reducer';
+import { setModules, addModule, editModule, updateModule, deleteModule } from './reducer';
+import * as client from "./client";
 
 interface Lesson {
   _id: string;
@@ -30,6 +31,24 @@ export default function Modules() {
 
   const dispatch = useDispatch();
   const modules = useSelector((state: any) => state.modulesReducer.modules);
+
+  const removeModule = async (moduleId: string) => {
+      await client.deleteModule(moduleId);
+      dispatch(deleteModule(moduleId));
+    };
+
+  const createModule = async (module: any) => {
+      const newModule = await client.createModule(cid as string, module);
+      dispatch(addModule(newModule));
+    };
+
+  const fetchModules = async () => {
+      const modules = await client.findModulesForCourse(cid as string);
+      dispatch(setModules(modules));
+    };
+    useEffect(() => {
+      fetchModules();
+    }, []);
 
   const handleAddModule = () => {
     if (cid) {
@@ -58,12 +77,20 @@ export default function Modules() {
 
   const isEditing = (moduleId: string) => editingModuleId === moduleId;
 
+  const saveModule = async (module: any) => {
+    const status = await client.updateModule(module);
+    dispatch(updateModule(module));
+  };
+
   return (
     <div id="wd-modules">
       <ModulesControls
         setModuleName={setModuleName}
         moduleName={moduleName}
-        addModule={handleAddModule}
+        addModule={() => {
+                            createModule({ name: moduleName, course: cid });
+                            setModuleName("");
+                          }}
       />
       <ul className="list-group rounded-0">
         {modules
@@ -75,11 +102,11 @@ export default function Modules() {
                 {isEditing(module._id) ? (
                   <input
                     className="form-control w-50 d-inline-block"
-                    onChange={(e) => handleUpdateModule(module._id, (e.target as HTMLInputElement).value)}
+                    onChange={(e) => saveModule({ ...module, name: e.target.value }) }
                     onKeyDown={(e) => {
                       const target = e.target as HTMLInputElement; // Cast target to HTMLInputElement
                       if (e.key === "Enter") {
-                        handleUpdateModule(module._id, target.value);
+                        saveModule({ ...module, editing: false });
                       }
                     }}
                     defaultValue={module.name} // Initialize with module's current name
@@ -89,7 +116,7 @@ export default function Modules() {
                 )}
                 <ModuleControlButtons
                   moduleId={module._id}
-                  deleteModule={() => handleDeleteModule(module._id)}
+                  deleteModule={(moduleId) => { removeModule(moduleId); }}
                   editModule={() => handleEditModule(module._id)}
                 />
               </div>

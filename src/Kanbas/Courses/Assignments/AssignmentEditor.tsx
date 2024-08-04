@@ -1,12 +1,10 @@
 import React, { useState } from "react";
-import { useDispatch } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
-import { addAssignment } from "./reducer";
+import { createAssignment, updateAssignment } from "./client";
 
 const AssignmentEditor = () => {
-  const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { cid } = useParams<{ cid: string }>();
+  const { cid, aid } = useParams<{ cid: string; aid?: string }>();
 
   const [title, setTitle] = useState("New Assignment");
   const [description, setDescription] = useState("New Assignment Description");
@@ -15,16 +13,23 @@ const AssignmentEditor = () => {
   const [availableFrom, setAvailableFrom] = useState("");
   const [availableUntil, setAvailableUntil] = useState("");
 
-  const handleSave = () => {
-    dispatch(addAssignment({
+  const handleSave = async () => {
+    const assignment = {
       title,
       description,
       points,
       dueDate,
       availableFrom,
       availableUntil,
-      course: cid,
-    }));
+      course: cid!,
+    };
+
+    if (aid) {
+      await updateAssignment({ ...assignment, _id: aid });
+    } else {
+      await createAssignment(cid!, assignment);
+    }
+
     navigate(`/Kanbas/Courses/${cid}/Assignments`);
   };
 

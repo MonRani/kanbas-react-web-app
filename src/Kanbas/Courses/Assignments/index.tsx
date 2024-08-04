@@ -1,17 +1,26 @@
-import React, { useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router';
 import { BsGripVertical, BsPencilSquare, BsSearch, BsPlusLg, BsTrash } from 'react-icons/bs';
 import { IoEllipsisVertical } from 'react-icons/io5';
 import GreenCheckmark from './GreenCheckmark';
-import { deleteAssignment } from './reducer'; // Import the deleteAssignment action
+import { fetchAllAssignments, deleteAssignment } from './client';
 
 export default function Assignments() {
   const { cid } = useParams<{ cid?: string }>();
   const [confirmDelete, setConfirmDelete] = useState<{ id: string | null; visible: boolean }>({ id: null, visible: false });
-  const dispatch = useDispatch();
+  const [assignments, setAssignments] = useState<any[]>([]);
   const navigate = useNavigate();
-  const assignments = useSelector((state: any) => state.assignmentsReducer.assignments);
+
+  useEffect(() => {
+    const loadAssignments = async () => {
+      if (cid) {
+        const fetchedAssignments = await fetchAllAssignments(cid);
+        setAssignments(fetchedAssignments);
+      }
+    };
+
+    loadAssignments();
+  }, [cid]);
 
   const handleAddAssignment = () => {
     if (cid) {
@@ -27,9 +36,10 @@ export default function Assignments() {
     setConfirmDelete({ id: assignmentId, visible: true });
   };
 
-  const confirmDeletion = () => {
+  const confirmDeletion = async () => {
     if (confirmDelete.id) {
-      dispatch(deleteAssignment(confirmDelete.id));
+      await deleteAssignment(confirmDelete.id);
+      setAssignments(assignments.filter(a => a._id !== confirmDelete.id));
     }
     setConfirmDelete({ id: null, visible: false });
   };
