@@ -1,4 +1,6 @@
 import * as client from "./client";
+import { useDispatch } from "react-redux";
+import { setCurrentUser } from "./reducer";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -8,22 +10,19 @@ export default function Profile() {
   const navigate = useNavigate();
 
   const fetchProfile = async () => {
-    try {
-      const account = await client.profile();
-      setProfile(account);
-    } catch (err: any) {
-      if (err.response && err.response.status === 401) {
-        setError("You need to sign in to view your profile.");
-        // Optionally, redirect to the sign-in page automatically
-        // navigate("/Kanbas/Account/Signin");
-      } else {
-        setError("An error occurred while fetching your profile.");
+      try {
+        const account = await client.profile();
+        setProfile(account);
+      } catch (err: any) {
+        navigate("/Kanbas/Account/Signin");
       }
-    }
-  };
+    };
+
+  const dispatch = useDispatch();
 
   const signout = async () => {
     await client.signout();
+    dispatch(setCurrentUser(null));
     navigate("/Kanbas/Account/Signin");
   };
 

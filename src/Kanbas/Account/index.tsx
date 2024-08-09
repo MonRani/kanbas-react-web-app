@@ -6,6 +6,7 @@ import AccountNavigation from "./Navigation";
 import { useSelector } from "react-redux";
 
 export default function Account() {
+  const { currentUser } = useSelector((state: any) => state.accountReducer);
 
   return (
     <div className="wd-account-screen">
@@ -15,7 +16,10 @@ export default function Account() {
         </div>
         <div className="flex-fill p-4 pt-0">
           <Routes>
-            <Route path="/" element={ <Navigate to="/Kanbas/Account/Signin" /> } />
+            <Route
+              path="/"
+              element={currentUser ? <Navigate to="/Kanbas/Account/Profile" /> : <Navigate to="/Kanbas/Account/Signin" />}
+            />
             <Route path="/Signin" element={<Signin />} />
             <Route path="/Signup" element={<Signup />} />
             <Route path="/Profile" element={<Profile />} />
