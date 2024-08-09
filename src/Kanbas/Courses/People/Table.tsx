@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
 import * as client from "./client";
 import PeopleDetails from "./Details";
-import { FaPlus } from "react-icons/fa"; // Import FaPlus
+import { FaPlus } from "react-icons/fa";
+import { Link, useParams } from "react-router-dom"; // Import useParams and Link
 
 export default function PeopleTable() {
+  const { cid } = useParams(); // Get the course ID from the URL parameters
   const [users, setUsers] = useState<any[]>([]);
   const [role, setRole] = useState("");
   const [name, setName] = useState("");
@@ -85,8 +87,13 @@ export default function PeopleTable() {
           {users.map((user: any) => (
             <tr key={user._id}>
               <td className="wd-full-name text-nowrap">
-                <span className="wd-first-name">{user.firstName}</span>
-                <span className="wd-last-name">{user.lastName}</span>
+                <Link
+                  to={`/Kanbas/Courses/${cid}/People/${user._id}`}
+                  style={{ color: "red", textDecoration: "none" }} // Apply red color and remove underline
+                >
+                  <span className="wd-first-name">{user.firstName} </span>
+                  <span className="wd-last-name">{user.lastName}</span>
+                </Link>
               </td>
               <td className="wd-login-id">{user.loginId}</td>
               <td className="wd-section">{user.section}</td>
