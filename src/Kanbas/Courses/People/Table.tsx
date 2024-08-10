@@ -84,24 +84,26 @@ export default function PeopleTable() {
           </tr>
         </thead>
         <tbody>
-          {users.map((user: any) => (
-            <tr key={user._id}>
-              <td className="wd-full-name text-nowrap">
-                <Link
-                  to={`/Kanbas/Courses/${cid}/People/${user._id}`}
-                  style={{ color: "red", textDecoration: "none" }} // Apply red color and remove underline
-                >
-                  <span className="wd-first-name">{user.firstName} </span>
-                  <span className="wd-last-name">{user.lastName}</span>
-                </Link>
-              </td>
-              <td className="wd-login-id">{user.loginId}</td>
-              <td className="wd-section">{user.section}</td>
-              <td className="wd-role">{user.role}</td>
-              <td className="wd-last-activity">{user.lastActivity}</td>
-              <td className="wd-total-activity">{user.totalActivity}</td>
-            </tr>
-          ))}
+          {users
+            .filter((user) => user.firstName && user.lastName && user.role) // Only require these fields
+            .map((user: any) => (
+              <tr key={user._id}>
+                <td className="wd-full-name text-nowrap">
+                  <Link
+                    to={`/Kanbas/Courses/${cid}/People/${user._id}`}
+                    style={{ color: "red", textDecoration: "none" }} // Apply red color and remove underline
+                  >
+                    <span className="wd-first-name">{user.firstName} </span>
+                    <span className="wd-last-name">{user.lastName}</span>
+                  </Link>
+                </td>
+                <td className="wd-login-id">{user.loginId || "N/A"}</td> {/* Default to N/A if missing */}
+                <td className="wd-section">{user.section || "N/A"}</td> {/* Default to N/A if missing */}
+                <td className="wd-role">{user.role}</td>
+                <td className="wd-last-activity">{user.lastActivity || "N/A"}</td> {/* Default to N/A if missing */}
+                <td className="wd-total-activity">{user.totalActivity || "N/A"}</td> {/* Default to N/A if missing */}
+              </tr>
+            ))}
         </tbody>
       </table>
     </div>
